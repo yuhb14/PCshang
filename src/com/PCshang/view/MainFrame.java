@@ -16,6 +16,7 @@ import org.jfree.chart.ChartFrame;
 import org.jfree.data.category.DefaultCategoryDataset;
 
 import com.PCshang.controller.ClearData;
+import com.PCshang.controller.ClearDb;
 import com.PCshang.controller.OpenSerialPort;
 import com.PCshang.controller.SaveData;
 import com.PCshang.controller.SendData;
@@ -60,6 +61,10 @@ import javax.swing.JCheckBox;
 import java.awt.Canvas;
 import javax.swing.border.CompoundBorder;
 import javax.swing.UIManager;
+import javax.swing.border.TitledBorder;
+import javax.swing.border.LineBorder;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
 
 public class MainFrame extends JFrame {
 
@@ -111,6 +116,14 @@ public class MainFrame extends JFrame {
 	
 	private JPanel panel_chart;
 
+	public volatile  boolean readdataflag;
+	public volatile  boolean stopDbUtil;
+	public  JTable t_dbrealtime;
+	public  JTable t_dbselecttime;
+	private JPanel panel_other;
+	private JLabel lblNewLabel_5;
+	private JTextField t_voltage;
+
 
 	
 
@@ -144,30 +157,32 @@ public class MainFrame extends JFrame {
 	    int mainfrm_loacation_start_y = (int)((screenSize.getHeight()-mainfrm_height)/2);
 	 */
 	    
-		setBounds(333,72,1100,630);
+		setBounds(333,72,1115,655);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		
 		JPanel panel_receive = new JPanel();
+		panel_receive.setBorder(new CompoundBorder(new LineBorder(new Color(0, 0, 0)), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "\u63A5\u6536\u533A", TitledBorder.CENTER, TitledBorder.TOP, null, new Color(0, 0, 0))));
 		
 		JPanel panel_send = new JPanel();
+		panel_send.setBorder(new CompoundBorder(new LineBorder(new Color(0, 0, 0)), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "\u53D1\u9001\u533A", TitledBorder.CENTER, TitledBorder.TOP, null, new Color(0, 0, 0))));
 		
 		panel_taR = new JPanel();
+		panel_taR.setBorder(new CompoundBorder(new LineBorder(new Color(0, 0, 0)), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "\u6570\u636E\u7F13\u5B58\u533A", TitledBorder.CENTER, TitledBorder.TOP, null, new Color(0, 0, 0))));
+		panel_taR.setToolTipText("");
 		
 		scrollPane_1 = new JScrollPane();
 		GroupLayout gl_panel_taR = new GroupLayout(panel_taR);
 		gl_panel_taR.setHorizontalGroup(
 			gl_panel_taR.createParallelGroup(Alignment.LEADING)
-				.addGroup(gl_panel_taR.createSequentialGroup()
-					.addComponent(scrollPane_1, GroupLayout.PREFERRED_SIZE, 151, GroupLayout.PREFERRED_SIZE)
-					.addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+				.addComponent(scrollPane_1, GroupLayout.DEFAULT_SIZE, 635, Short.MAX_VALUE)
 		);
 		gl_panel_taR.setVerticalGroup(
-			gl_panel_taR.createParallelGroup(Alignment.LEADING)
-				.addGroup(Alignment.TRAILING, gl_panel_taR.createSequentialGroup()
-					.addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-					.addComponent(scrollPane_1, GroupLayout.PREFERRED_SIZE, 341, GroupLayout.PREFERRED_SIZE))
+			gl_panel_taR.createParallelGroup(Alignment.TRAILING)
+				.addGroup(gl_panel_taR.createSequentialGroup()
+					.addContainerGap()
+					.addComponent(scrollPane_1, GroupLayout.DEFAULT_SIZE, 48, Short.MAX_VALUE))
 		);
 		
 		ta_receiveArea = new JTextArea();
@@ -192,44 +207,43 @@ public class MainFrame extends JFrame {
 		cb_HexSend = new JCheckBox("十六进制发送");
 		GroupLayout gl_panel_send = new GroupLayout(panel_send);
 		gl_panel_send.setHorizontalGroup(
-			gl_panel_send.createParallelGroup(Alignment.LEADING)
+			gl_panel_send.createParallelGroup(Alignment.TRAILING)
+				.addGroup(Alignment.LEADING, gl_panel_send.createSequentialGroup()
+					.addGap(19)
+					.addComponent(cb_timerSend)
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addComponent(tf_time, GroupLayout.PREFERRED_SIZE, 42, GroupLayout.PREFERRED_SIZE)
+					.addPreferredGap(ComponentPlacement.UNRELATED)
+					.addComponent(lblNewLabel_2, GroupLayout.PREFERRED_SIZE, 22, GroupLayout.PREFERRED_SIZE)
+					.addContainerGap(25, Short.MAX_VALUE))
+				.addGroup(Alignment.LEADING, gl_panel_send.createSequentialGroup()
+					.addGap(25)
+					.addComponent(ta_sendArea, GroupLayout.PREFERRED_SIZE, 140, GroupLayout.PREFERRED_SIZE)
+					.addContainerGap(28, Short.MAX_VALUE))
 				.addGroup(gl_panel_send.createSequentialGroup()
-					.addGroup(gl_panel_send.createParallelGroup(Alignment.LEADING)
-						.addGroup(gl_panel_send.createSequentialGroup()
-							.addGap(22)
-							.addComponent(ta_sendArea, GroupLayout.PREFERRED_SIZE, 140, GroupLayout.PREFERRED_SIZE))
-						.addGroup(gl_panel_send.createSequentialGroup()
-							.addGap(49)
-							.addComponent(cb_HexSend))
-						.addGroup(gl_panel_send.createSequentialGroup()
-							.addGap(14)
-							.addComponent(cb_timerSend)
-							.addGap(6)
-							.addComponent(tf_time, GroupLayout.PREFERRED_SIZE, 42, GroupLayout.PREFERRED_SIZE)
-							.addPreferredGap(ComponentPlacement.UNRELATED)
-							.addComponent(lblNewLabel_2, GroupLayout.PREFERRED_SIZE, 22, GroupLayout.PREFERRED_SIZE))
-						.addGroup(gl_panel_send.createSequentialGroup()
-							.addGap(58)
-							.addComponent(btn_sendData)))
-					.addContainerGap(16, Short.MAX_VALUE))
+					.addContainerGap(51, Short.MAX_VALUE)
+					.addComponent(cb_HexSend)
+					.addGap(45))
+				.addGroup(Alignment.LEADING, gl_panel_send.createSequentialGroup()
+					.addGap(67)
+					.addComponent(btn_sendData)
+					.addContainerGap(69, Short.MAX_VALUE))
 		);
 		gl_panel_send.setVerticalGroup(
 			gl_panel_send.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_panel_send.createSequentialGroup()
-					.addGap(10)
-					.addComponent(ta_sendArea, GroupLayout.PREFERRED_SIZE, 74, GroupLayout.PREFERRED_SIZE)
-					.addGap(2)
+					.addContainerGap()
+					.addComponent(ta_sendArea, GroupLayout.PREFERRED_SIZE, 108, GroupLayout.PREFERRED_SIZE)
+					.addPreferredGap(ComponentPlacement.UNRELATED)
 					.addComponent(cb_HexSend)
-					.addGap(1)
-					.addGroup(gl_panel_send.createParallelGroup(Alignment.LEADING)
+					.addPreferredGap(ComponentPlacement.UNRELATED)
+					.addGroup(gl_panel_send.createParallelGroup(Alignment.BASELINE)
 						.addComponent(cb_timerSend)
-						.addGroup(gl_panel_send.createSequentialGroup()
-							.addGap(1)
-							.addGroup(gl_panel_send.createParallelGroup(Alignment.BASELINE)
-								.addComponent(tf_time, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-								.addComponent(lblNewLabel_2))))
-					.addGap(7)
-					.addComponent(btn_sendData))
+						.addComponent(tf_time, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addComponent(lblNewLabel_2))
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addComponent(btn_sendData)
+					.addGap(29))
 		);
 		panel_send.setLayout(gl_panel_send);
 		
@@ -262,7 +276,7 @@ public class MainFrame extends JFrame {
 		
 		cb_HexReceive = new JCheckBox("十六进制接收");
 		
-		btn_saveData = new JButton("保存数据");
+		btn_saveData = new JButton("保存EXCEL");
 		btn_saveData.addActionListener(		
 				//保存数据
 				new SaveData(this)
@@ -280,90 +294,250 @@ public class MainFrame extends JFrame {
 				//清楚数据
 				new ClearData(this)
 				);
+		
+		JButton btn_TXTData = new JButton("保存TXT");
 		GroupLayout gl_panel_receive = new GroupLayout(panel_receive);
 		gl_panel_receive.setHorizontalGroup(
 			gl_panel_receive.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_panel_receive.createSequentialGroup()
+					.addContainerGap()
+					.addComponent(lblNewLabel)
+					.addGap(18)
+					.addComponent(cbB_serialPortNum, 0, 101, Short.MAX_VALUE)
+					.addContainerGap())
+				.addGroup(gl_panel_receive.createSequentialGroup()
+					.addContainerGap()
+					.addComponent(lblNewLabel_1)
+					.addGap(18)
+					.addComponent(cbB_baudRate, 0, 101, Short.MAX_VALUE)
+					.addContainerGap())
+				.addGroup(gl_panel_receive.createSequentialGroup()
+					.addGap(41)
 					.addGroup(gl_panel_receive.createParallelGroup(Alignment.LEADING)
 						.addGroup(gl_panel_receive.createSequentialGroup()
-							.addContainerGap()
-							.addGroup(gl_panel_receive.createParallelGroup(Alignment.LEADING)
-								.addComponent(lblNewLabel)
-								.addComponent(lblNewLabel_1))
-							.addGap(18)
-							.addGroup(gl_panel_receive.createParallelGroup(Alignment.LEADING)
-								.addComponent(cbB_serialPortNum, 0, 91, Short.MAX_VALUE)
-								.addComponent(cbB_baudRate, 0, 91, Short.MAX_VALUE))
-							.addPreferredGap(ComponentPlacement.RELATED))
+							.addComponent(cb_HexReceive)
+							.addContainerGap(55, Short.MAX_VALUE))
 						.addGroup(gl_panel_receive.createSequentialGroup()
-							.addGap(31)
-							.addGroup(gl_panel_receive.createParallelGroup(Alignment.TRAILING)
-								.addComponent(btn_openSerialPort, GroupLayout.PREFERRED_SIZE, 104, GroupLayout.PREFERRED_SIZE)
-								.addGroup(gl_panel_receive.createParallelGroup(Alignment.LEADING)
-									.addComponent(btn_saveData)
-									.addComponent(cb_HexReceive)
-									.addComponent(btn_stopUptate)
-									.addComponent(btn_clearData)))))
-					.addGap(10))
+							.addGroup(gl_panel_receive.createParallelGroup(Alignment.TRAILING, false)
+								.addComponent(btn_TXTData, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+								.addComponent(btn_clearData, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+								.addComponent(btn_stopUptate, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+								.addComponent(btn_openSerialPort, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 127, Short.MAX_VALUE)
+								.addComponent(btn_saveData, GroupLayout.DEFAULT_SIZE, 104, Short.MAX_VALUE))
+							.addContainerGap())))
 		);
 		gl_panel_receive.setVerticalGroup(
 			gl_panel_receive.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_panel_receive.createSequentialGroup()
-					.addGap(40)
-					.addGroup(gl_panel_receive.createParallelGroup(Alignment.LEADING)
-						.addComponent(cbB_serialPortNum, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-						.addComponent(lblNewLabel))
+					.addContainerGap()
+					.addGroup(gl_panel_receive.createParallelGroup(Alignment.BASELINE)
+						.addComponent(lblNewLabel)
+						.addComponent(cbB_serialPortNum, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addGroup(gl_panel_receive.createParallelGroup(Alignment.LEADING)
 						.addComponent(lblNewLabel_1, GroupLayout.PREFERRED_SIZE, 21, GroupLayout.PREFERRED_SIZE)
 						.addComponent(cbB_baudRate, GroupLayout.PREFERRED_SIZE, 27, GroupLayout.PREFERRED_SIZE))
-					.addGap(18)
+					.addPreferredGap(ComponentPlacement.UNRELATED)
 					.addComponent(btn_openSerialPort, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
 					.addPreferredGap(ComponentPlacement.UNRELATED)
 					.addComponent(cb_HexReceive)
+					.addPreferredGap(ComponentPlacement.UNRELATED)
+					.addComponent(btn_stopUptate)
+					.addPreferredGap(ComponentPlacement.UNRELATED)
+					.addComponent(btn_clearData)
 					.addGap(18)
 					.addComponent(btn_saveData)
 					.addPreferredGap(ComponentPlacement.UNRELATED)
-					.addComponent(btn_stopUptate)
-					.addGap(18)
-					.addComponent(btn_clearData)
-					.addContainerGap(42, Short.MAX_VALUE))
+					.addComponent(btn_TXTData)
+					.addContainerGap(22, Short.MAX_VALUE))
 		);
 		panel_receive.setLayout(gl_panel_receive);
 		
 		
 		
 		panel_chart = new JPanel();
+		panel_chart.setBorder(new CompoundBorder(new LineBorder(new Color(0, 0, 0)), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "\u66F2\u7EBF\u8868", TitledBorder.CENTER, TitledBorder.TOP, null, new Color(0, 0, 0))));
+		
+		JPanel panel_db = new JPanel();
+		panel_db.setBorder(new CompoundBorder(new LineBorder(new Color(0, 0, 0)), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "\u6570\u636E\u5E93", TitledBorder.CENTER, TitledBorder.TOP, null, new Color(0, 0, 0))));
+		
+		panel_other = new JPanel();
+		panel_other.setBorder(new CompoundBorder(new LineBorder(new Color(0, 0, 0)), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "\u5176\u4ED6", TitledBorder.CENTER, TitledBorder.TOP, null, new Color(0, 0, 0))));
 		GroupLayout gl_contentPane = new GroupLayout(contentPane);
 		gl_contentPane.setHorizontalGroup(
 			gl_contentPane.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_contentPane.createSequentialGroup()
-					.addGap(21)
-					.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
-						.addComponent(panel_receive, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-						.addComponent(panel_send, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+					.addContainerGap()
+					.addGroup(gl_contentPane.createParallelGroup(Alignment.TRAILING)
+						.addComponent(panel_send, 0, 0, Short.MAX_VALUE)
+						.addComponent(panel_receive, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
 					.addGap(18)
-					.addComponent(panel_chart, GroupLayout.PREFERRED_SIZE, 635, GroupLayout.PREFERRED_SIZE)
-					.addGap(27)
-					.addComponent(panel_taR, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-					.addGap(42))
+					.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
+						.addComponent(panel_chart, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addComponent(panel_taR, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
+						.addComponent(panel_db, GroupLayout.PREFERRED_SIZE, 176, Short.MAX_VALUE)
+						.addComponent(panel_other, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+					.addContainerGap())
 		);
 		gl_contentPane.setVerticalGroup(
 			gl_contentPane.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_contentPane.createSequentialGroup()
-					.addContainerGap(10, Short.MAX_VALUE)
-					.addGroup(gl_contentPane.createParallelGroup(Alignment.TRAILING, false)
-						.addComponent(panel_taR, GroupLayout.PREFERRED_SIZE, 340, GroupLayout.PREFERRED_SIZE)
-						.addGroup(gl_contentPane.createSequentialGroup()
-							.addComponent(panel_receive, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-							.addGap(18)
-							.addComponent(panel_send, GroupLayout.PREFERRED_SIZE, 181, GroupLayout.PREFERRED_SIZE))
+					.addContainerGap()
+					.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
 						.addGroup(gl_contentPane.createSequentialGroup()
 							.addComponent(panel_chart, GroupLayout.PREFERRED_SIZE, 499, GroupLayout.PREFERRED_SIZE)
-							.addGap(30)))
-					.addContainerGap(32, Short.MAX_VALUE))
+							.addPreferredGap(ComponentPlacement.RELATED)
+							.addComponent(panel_taR, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+						.addGroup(gl_contentPane.createSequentialGroup()
+							.addComponent(panel_receive, GroupLayout.PREFERRED_SIZE, 329, GroupLayout.PREFERRED_SIZE)
+							.addPreferredGap(ComponentPlacement.RELATED)
+							.addComponent(panel_send, GroupLayout.PREFERRED_SIZE, 254, Short.MAX_VALUE))
+						.addGroup(gl_contentPane.createSequentialGroup()
+							.addComponent(panel_db, GroupLayout.PREFERRED_SIZE, 399, GroupLayout.PREFERRED_SIZE)
+							.addPreferredGap(ComponentPlacement.RELATED)
+							.addComponent(panel_other, GroupLayout.DEFAULT_SIZE, 181, Short.MAX_VALUE)))
+					.addContainerGap())
 		);
 		
+		lblNewLabel_5 = new JLabel("电压(V)");
+		
+		t_voltage = new JTextField();
+		t_voltage.setColumns(10);
+		GroupLayout gl_panel_other = new GroupLayout(panel_other);
+		gl_panel_other.setHorizontalGroup(
+			gl_panel_other.createParallelGroup(Alignment.LEADING)
+				.addGroup(gl_panel_other.createSequentialGroup()
+					.addComponent(lblNewLabel_5)
+					.addPreferredGap(ComponentPlacement.UNRELATED)
+					.addComponent(t_voltage, GroupLayout.DEFAULT_SIZE, 100, Short.MAX_VALUE)
+					.addContainerGap())
+		);
+		gl_panel_other.setVerticalGroup(
+			gl_panel_other.createParallelGroup(Alignment.LEADING)
+				.addGroup(gl_panel_other.createSequentialGroup()
+					.addContainerGap()
+					.addGroup(gl_panel_other.createParallelGroup(Alignment.BASELINE)
+						.addComponent(lblNewLabel_5)
+						.addComponent(t_voltage, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+					.addContainerGap(133, Short.MAX_VALUE))
+		);
+		panel_other.setLayout(gl_panel_other);
+		
+		JLabel lblNewLabel_3 = new JLabel("实时量");
+		
+		t_dbrealtime = new JTable();
+		t_dbrealtime.setModel(new DefaultTableModel(
+			new Object[][] {
+				{"\u6570\u636E\u91CF", null},
+				{"roll", null},
+				{"yaw", null},
+				{"pitch", null},
+				{"motorA", null},
+				{"motorB", null},
+				{"motorC", null},
+			},
+			new String[] {
+				"\u9009\u9879", "\u6570\u503C"
+			}
+		) {
+			Class[] columnTypes = new Class[] {
+				String.class, String.class
+			};
+			public Class getColumnClass(int columnIndex) {
+				return columnTypes[columnIndex];
+			}
+			boolean[] columnEditables = new boolean[] {
+				false, false
+			};
+			public boolean isCellEditable(int row, int column) {
+				return columnEditables[column];
+			}
+		});
+		
+		JLabel lblNewLabel_4 = new JLabel("查询量");
+		
+		t_dbselecttime = new JTable();
+		t_dbselecttime.setModel(new DefaultTableModel(
+			new Object[][] {
+				{"\u67E5\u8BE2time_log", null},
+				{"roll", null},
+				{"yaw", null},
+				{"pitch", null},
+				{"motorA", null},
+				{"motorB", null},
+				{"motorC", null},
+			},
+			new String[] {
+				"\u9009\u9879", "\u6570\u503C"
+			}
+		) {
+			Class[] columnTypes = new Class[] {
+				Object.class, String.class
+			};
+			public Class getColumnClass(int columnIndex) {
+				return columnTypes[columnIndex];
+			}
+			boolean[] columnEditables = new boolean[] {
+				false, true
+			};
+			public boolean isCellEditable(int row, int column) {
+				return columnEditables[column];
+			}
+		});
+		
+		JButton btn_selectDb = new JButton("查询数据");
+		btn_selectDb.addActionListener(
+				
+				new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+			}
+		});
+		
+		
+		JButton btn_clearDb = new JButton("清空数据库");
+		btn_clearDb.addActionListener(
+				//清楚数据库
+				new ClearDb(this)
+				
+				);
+		
+		GroupLayout gl_panel_db = new GroupLayout(panel_db);
+		gl_panel_db.setHorizontalGroup(
+			gl_panel_db.createParallelGroup(Alignment.LEADING)
+				.addGroup(gl_panel_db.createSequentialGroup()
+					.addGroup(gl_panel_db.createParallelGroup(Alignment.LEADING)
+						.addComponent(lblNewLabel_3)
+						.addComponent(t_dbrealtime, GroupLayout.PREFERRED_SIZE, 158, GroupLayout.PREFERRED_SIZE)
+						.addComponent(lblNewLabel_4)
+						.addComponent(t_dbselecttime, GroupLayout.DEFAULT_SIZE, 158, Short.MAX_VALUE)
+						.addGroup(gl_panel_db.createSequentialGroup()
+							.addGap(39)
+							.addGroup(gl_panel_db.createParallelGroup(Alignment.TRAILING, false)
+								.addComponent(btn_clearDb, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+								.addComponent(btn_selectDb, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+					.addContainerGap())
+		);
+		gl_panel_db.setVerticalGroup(
+			gl_panel_db.createParallelGroup(Alignment.LEADING)
+				.addGroup(gl_panel_db.createSequentialGroup()
+					.addComponent(lblNewLabel_3)
+					.addGap(2)
+					.addComponent(t_dbrealtime, GroupLayout.PREFERRED_SIZE, 116, GroupLayout.PREFERRED_SIZE)
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addComponent(lblNewLabel_4)
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addComponent(t_dbselecttime, GroupLayout.PREFERRED_SIZE, 122, GroupLayout.PREFERRED_SIZE)
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addComponent(btn_selectDb)
+					.addPreferredGap(ComponentPlacement.UNRELATED)
+					.addComponent(btn_clearDb)
+					.addContainerGap(29, Short.MAX_VALUE))
+		);
+		panel_db.setLayout(gl_panel_db);
+		
+		//表格部件
 		 rtcp = new RealChartUtil(this,"", "", "",f,x_site);
 		 rtcp.setBackground(Color.ORANGE);
 	
@@ -379,14 +553,13 @@ public class MainFrame extends JFrame {
 		gl_panel_chart.setVerticalGroup(
 			gl_panel_chart.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_panel_chart.createSequentialGroup()
-					.addComponent(rtcp, GroupLayout.DEFAULT_SIZE, 489, Short.MAX_VALUE)
-					.addContainerGap())
+					.addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+					.addComponent(rtcp, GroupLayout.PREFERRED_SIZE, 467, GroupLayout.PREFERRED_SIZE))
 		);
 		panel_chart.setLayout(gl_panel_chart);
 		
-		this.startPlot=false;
-	
 		
+		this.startPlot=false;		
 		//(new Thread(rtcp) ).start();
 		
 		contentPane.setLayout(gl_contentPane);

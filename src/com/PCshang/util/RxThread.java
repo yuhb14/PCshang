@@ -20,7 +20,8 @@ public class RxThread extends Thread {
 
 	
 	InputStream in;
-	
+	 InsertDbUtil insertdbutil;
+	 TableDisplayUtil tabledisplayutil;
 
 	// 这里用了一个锁，可能就是防止多线程导致卡住的原因，看一下这个什么作用
 	public volatile boolean stopRxThread;
@@ -48,7 +49,8 @@ public class RxThread extends Thread {
 	 */
 	
 	public void Decoder() {
-
+		
+		
 		byte[] bytes = null;
 		int len = 1;
 		byte[] buffer = new byte[len];
@@ -56,29 +58,10 @@ public class RxThread extends Thread {
 		int i=0;
 		float j =0.0f;
 		
-		DefaultCategoryDataset dataSet = new DefaultCategoryDataset();
-		 JFreeChart chart = null;
-		//ChartFrame chartFrame=new ChartFrame(null,chart);
-		// chartFrame.setVisible(true);
+		insertdbutil = new InsertDbUtil(this.mainfrm);
+		tabledisplayutil = new TableDisplayUtil();
 	
-		 ChartFrame cartFrame = null;
-		 
-		 float f=0.0f;
-		 /*
-			JFrame frame = new JFrame("Test Chart");
-			RealTimeChart rtcp = new RealTimeChart("Random Data", "随机数", "数值",f);
-			frame.getContentPane().add(rtcp, new BorderLayout().CENTER);
-			frame.pack();
-			frame.setVisible(true);
-			(new Thread(rtcp) ).start();
-			frame.addWindowListener(new WindowAdapter() {
-				public void windowClosing(WindowEvent windowevent) {
-					System.exit(0);
-				}
-
-			});
-			*/
-			
+				
 		try {
 
 			while ((len) > -1) {
@@ -99,22 +82,30 @@ public class RxThread extends Thread {
 							spdatalength == 38  || spdatalength == 42)) {
 						 
 						// f = new float[(spdatalength-2)/4];
-											
-						 float[] f1 = ByteUtil.byteToFloat(bytes, spdatalength);
-						 
-						 //绘制曲线在主界面
-						 mainfrm.rtcp.setF(f1);
-						 
-						 //插入数据库
-						InsertDbUtil.insertDbEulerUtil(f1);
-						InsertDbUtil.insertDbVelocityUtil(f1);
-	
-		
-					//	mainfrm.ta_receiveArea.append(ByteUtil.byteArrayToHexString(bytes));
-						for(int ss=0;ss<((spdatalength-2)/4);ss++) {
-							mainfrm.ta_receiveArea.append(Float.toString(f1[ss]));
+						
+						if(mainfrm.startPlot == true) {
+						
+							 float[] f1 = ByteUtil.byteToFloat(bytes, spdatalength);
+							 
+							 
+							 j++;
+							 //System.out.println(f1.length);
+							 //绘制曲线在主界面
+							 mainfrm.rtcp.setF(f1);
+							 tabledisplayutil.realtabledisplay(this.mainfrm, f1, j);
+							//插入数据库
+							insertdbutil .insertDbPCshangUtil(f1);
+							
+						//	mainfrm.ta_receiveArea.append(ByteUtil.byteArrayToHexString(bytes));
+							for(int ss=0;ss<((spdatalength-2)/4);ss++) {
+								mainfrm.ta_receiveArea.append(Float.toString(f1[ss])+" ");
+							}
+							bytes = null;
+						
+							
+							
 						}
-						bytes = null;
+			
 					}
 					
 					continue;

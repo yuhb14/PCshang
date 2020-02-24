@@ -116,12 +116,14 @@ public class OpenSerialPort implements ActionListener {
 	
 	private void closeSerialPort() {
 		
-		mainfrm.rxthread.stopRxThread = true;
 		mainfrm.startPlot = false;
+		
+		mainfrm.rxthread.stopRxThread = true;
+		
 		// 这个很重要，当点完连接再点关闭，再连接会卡住，保留这句话不然线程会卡住
 		// mainfrm.rxthread.interrupt();
 		while (mainfrm.rxthread.getState() != Thread.State.TERMINATED);
-	
+		while(mainfrm.stopDbUtil ==false);
 		serialPort.close();
 		
 		mainfrm.btn_openSerialPort.setBackground(Color.GREEN);		

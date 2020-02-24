@@ -3,7 +3,7 @@ package com.PCshang.dao;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-
+import java.sql.SQLException;
 
 import com.PCshang.model.MotorVelocity;
 import com.PCshang.util.StringUtil;
@@ -74,5 +74,19 @@ public class MotorVelocityDao {
 			
 			PreparedStatement pstmt=con.prepareStatement(sb.toString());
 			return pstmt.executeQuery();	
+		}
+
+		/**
+		 * 删除表的全部
+		 * @param con
+		 * @return
+		 * @throws Exception 
+		 */
+		public static int deleteAll(Connection con) throws Exception {
+			String sql="delete from t_motorvelocity";
+
+			PreparedStatement pstmt=con.prepareStatement(sql);
+			//pstmt.setString(1, "*");
+			return pstmt.executeUpdate();
 		}
 }

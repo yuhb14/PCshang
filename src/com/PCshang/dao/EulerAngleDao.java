@@ -3,6 +3,7 @@ package com.PCshang.dao;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import com.PCshang.model.EulerAngle;
 import com.PCshang.util.StringUtil;
@@ -19,7 +20,7 @@ public class EulerAngleDao {
  * @throws Exception
  */
 	public static int add(Connection con, EulerAngle eulerangle)throws Exception {
-		String sql="insert into t_eulerangle values(null,?,?,?,?)";
+		String sql="insert into t_eulerangle values(null,?,?,?,?)";//第一个是主键，自增的填null就行，后面的是插入的数值
 		PreparedStatement pstmt=con.prepareStatement(sql);
 		pstmt.setString(1, eulerangle.getTime_log());
 		pstmt.setFloat(2, eulerangle.getRoll());
@@ -62,7 +63,7 @@ public class EulerAngleDao {
 	}
 	
 	/**
-	 *插
+	 *查询
 	 * @return
 	 * @throws Exception
 	 */
@@ -74,5 +75,19 @@ public class EulerAngleDao {
 		
 		PreparedStatement pstmt=con.prepareStatement(sb.toString());
 		return pstmt.executeQuery();	
+		
 	}
+
+	public static int deleteAll(Connection con) throws Exception {
+	
+			String sql="delete from t_eulerangle";//不加where就是删除表中全部数据，但不删除表
+
+			PreparedStatement pstmt=con.prepareStatement(sql);
+			//pstmt.setString();
+			return pstmt.executeUpdate();
+
+	
+		
+	}
+	
 }

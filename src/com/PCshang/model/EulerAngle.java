@@ -10,6 +10,10 @@ public class EulerAngle {
 	private Float yaw;
 	private Float pitch;
 	
+	
+	/**
+	 * 一定要写这个，生成构造方法从父类继承
+	 */
 	public EulerAngle() {
 		super();
 	}	

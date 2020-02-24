@@ -142,6 +142,7 @@ public class RealChartUtil extends ChartPanel implements Runnable {
 
 					Millisecond se = new Millisecond();
 					ts[i].add(se, (double) f[i]);
+				//	System.out.println("chengg");
 
 				}
 				try {
